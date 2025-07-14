@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, HelpCircle, ChevronRight, ChevronLeft } from 'lucide-react';
 
@@ -36,64 +36,67 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
   const maxWidth = 600;
 
   // Handle the start of dragging for resize
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = useCallback((event: React.MouseEvent) => {
     setIsDragging(true);
-    setStartX(e.clientX);
+    setStartX(event.clientX);
     setStartWidth(width);
-    e.preventDefault();
-  };
+    event.preventDefault();
+  }, [width]);
 
   // Handle mouse move during dragging for resize
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!isDragging) return;
     const newWidth = startWidth - (e.clientX - startX);
     if (newWidth >= minWidth && newWidth <= maxWidth) {
       setWidth(newWidth);
     }
-  };
+  }, []);
 
   // Handle the end of dragging for resize
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
+
+
 
   // Add and remove event listeners for dragging
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
     }
-    
+
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging]);
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   // Handle clicking outside the sidebar to close it
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+  const handleClickOutside = useCallback(
+    (e: MouseEvent) => {
       if (!isOpen) return;
-      
+
       const target = e.target as Element;
-      
-      // Don't close if clicking the toggle button
+
       if (target.closest('.help-toggle-button')) {
         return;
       }
-      
-      // Close if clicking outside the sidebar
+
       if (sidebarRef.current && !sidebarRef.current.contains(target)) {
         onClose();
       }
-    };
+    },
+    [isOpen, onClose, sidebarRef]
+  );
 
+  useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, onClose]);
+  }, [handleClickOutside]);
 
   // Prevent body scrolling when sidebar is open
   useEffect(() => {
@@ -102,7 +105,7 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
     } else {
       document.body.style.overflow = '';
     }
-    
+
     return () => {
       document.body.style.overflow = '';
     };
@@ -187,7 +190,7 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
     <AnimatePresence mode="sync">
       {isOpen && (
         <>
-          <motion.div 
+          <motion.div
             className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
             initial="closed"
             animate="open"
@@ -195,7 +198,7 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
             variants={backdropVariants}
             key="backdrop"
           />
-          
+
           <motion.div
             ref={sidebarRef}
             className="fixed top-5 right-5 bottom-5 rounded-lg bg-white dark:bg-gray-900 shadow-xl flex flex-col overflow-hidden origin-top-right z-50"
@@ -207,16 +210,16 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
             key="sidebar"
           >
             {/* Resize handle */}
-            <div 
+            <div
               ref={resizeHandleRef}
               className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-500/50 group z-10"
               onMouseDown={handleMouseDown}
             >
               <div className="absolute inset-y-0 left-0 w-1 bg-transparent group-hover:bg-blue-500/50"></div>
             </div>
-            
+
             {/* Sidebar header */}
-            <motion.div 
+            <motion.div
               className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
               variants={contentVariants}
             >
@@ -225,7 +228,7 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
                 <h2 className="text-lg font-semibold">Help & Information</h2>
               </div>
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   onClick={() => {
                     if (width > minWidth) setWidth(width - 50);
                   }}
@@ -234,7 +237,7 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     if (width < maxWidth) setWidth(width + 50);
                   }}
@@ -243,7 +246,7 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <button 
+                <button
                   onClick={onClose}
                   className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
@@ -251,9 +254,9 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
                 </button>
               </div>
             </motion.div>
-            
+
             {/* Sidebar content */}
-            <motion.div 
+            <motion.div
               className="flex-grow overflow-y-auto px-6 py-4 overflow-y-auto"
               variants={contentVariants}
             >
@@ -261,7 +264,7 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
                 <h3 className="text-xl font-bold mb-2">{content.title}</h3>
                 <p className="text-gray-600 dark:text-gray-400">{content.description}</p>
               </motion.div>
-              
+
               {content.sections && content.sections.map((section, index) => (
                 <motion.div key={index} className="mb-8" variants={itemVariants}>
                   <h4 className="text-lg font-semibold mb-3 text-blue-600 dark:text-blue-400">
@@ -269,8 +272,8 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
                   </h4>
                   <div className="space-y-4">
                     {section.items.map((item, itemIndex) => (
-                      <motion.div 
-                        key={itemIndex} 
+                      <motion.div
+                        key={itemIndex}
                         className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"
                         variants={itemVariants}
                       >
@@ -285,8 +288,8 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
               {!content.sections && content.features && (
                 <motion.div className="space-y-4" variants={itemVariants}>
                   {content.features.map((feature, index) => (
-                    <motion.div 
-                      key={index} 
+                    <motion.div
+                      key={index}
                       className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"
                       variants={itemVariants}
                     >
@@ -297,9 +300,9 @@ export function HelpSidebarBase({ isOpen, onClose, content }: HelpSidebarProps) 
                 </motion.div>
               )}
             </motion.div>
-            
+
             {/* Sidebar footer */}
-            <motion.div 
+            <motion.div
               className="p-4 border-t border-gray-200 dark:border-gray-700"
               variants={contentVariants}
             >

@@ -428,11 +428,11 @@ export default function Home() {
       </div>
 
       {/* Page-specific help sidebar */}
-      <HelpSidebarBase 
+      {/* <HelpSidebarBase 
         isOpen={isHelpOpen}
         onClose={toggleHelpSidebar}
-        // content={claimsWalletPlusHelp}
-      />
+        content={claimsWalletPlusHelp}
+      /> */}
 
       <ChatBubble />
 

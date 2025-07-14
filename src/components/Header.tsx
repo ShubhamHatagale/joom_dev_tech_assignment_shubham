@@ -23,16 +23,16 @@ import {
   Wallet,
   Home,
   DollarSign,
-  Landmark
+  // Landmark
 } from 'lucide-react';
 
 export function Header() {
   const { t, i18n } = useTranslation();
   const [isPaymentSolutionsOpen, setIsPaymentSolutionsOpen] = useState(false);
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [isCompaniesOpen, setIsCompaniesOpen] = useState(false);
+  // const [isAboutOpen, setIsAboutOpen] = useState(false);
+  // const [isLoginOpen, setIsLoginOpen] = useState(false);
+  // const [isMoreOpen, setIsMoreOpen] = useState(false);
+  // const [isCompaniesOpen, setIsCompaniesOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileCategory, setMobileCategory] = useState<string | null>(null);
